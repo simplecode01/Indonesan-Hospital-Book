@@ -1,7 +1,7 @@
 package com.simplecode01.indonesianhospital.ui
 
 @HiltViewModel
-class MainHiltViewModel @Inject constructor(private val rumahSakitRepository: RumahSakitRepository, private val localRepository: LocalRepository) :ViewModel(){
+class MainHiltViewModel @Inject constructor(private val rumahSakitRepository: RumahSakitRepository) :ViewModel(){
     fun getKotaKecamatan(provinceID: String) = liveData {
         emit(Resource.loading(null))
         try {
@@ -41,14 +41,5 @@ class MainHiltViewModel @Inject constructor(private val rumahSakitRepository: Ru
         }catch (e: Exception){
             emit(Resource.error(data = null, message = e.message?: "Gagal memuat data"))
         }
-    }
-    suspend fun addFav(favorite: Favorite){
-        return localRepository.addFav(favorite)
-    }
-    fun getFav(): Flow<List<Favorite>> {
-        return localRepository.getFav()
-    }
-    suspend fun delFav(favorite: Favorite){
-        return localRepository.delFav(favorite)
     }
 }

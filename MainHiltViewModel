@@ -1,0 +1,54 @@
+package com.simplecode01.indonesianhospital.ui
+
+@HiltViewModel
+class MainHiltViewModel @Inject constructor(private val rumahSakitRepository: RumahSakitRepository, private val localRepository: LocalRepository) :ViewModel(){
+    fun getKotaKecamatan(provinceID: String) = liveData {
+        emit(Resource.loading(null))
+        try {
+            emit(Resource.success(rumahSakitRepository.getListKotaKecamatan(provinceID)))
+        }catch (e: Exception){
+            emit(Resource.error(data = null, message = e.message?: "Gagal memuat data"))
+        }
+    }
+    fun getListRumahSakit(provinceID: String, cityID: String, type: String) = liveData {
+        emit(Resource.loading(null))
+        try {
+            emit(Resource.success(rumahSakitRepository.getListRumahSakit(provinceID, cityID,type)))
+        }catch (e: Exception){
+            emit(Resource.error(data = null, message = e.message?: "Gagal memuat data"))
+        }
+    }
+    fun getListRumahSakitNonCovid(provinceID: String, cityID: String, type: String) = liveData {
+        emit(Resource.loading(null))
+        try {
+            emit(Resource.success(rumahSakitRepository.getListRumahSakitNonCovid(provinceID, cityID,type)))
+        }catch (e: Exception){
+            emit(Resource.error(data = null, message = e.message?: "Gagal memuat data"))
+        }
+    }
+    fun getDetailRumahSakit(hospitalID: String, type: String) = liveData {
+        emit(Resource.loading(null))
+        try {
+            emit(Resource.success(rumahSakitRepository.getDetailRumahSakit(hospitalID, type)))
+        }catch (e: Exception){
+            emit(Resource.error(data = null, message = e.message?: "Gagal memuat data"))
+        }
+    }
+    fun getMapsRumahSakit(hospitalID: String) = liveData {
+        emit(Resource.loading(null))
+        try {
+            emit(Resource.success(rumahSakitRepository.getMapsRumahSakit(hospitalID)))
+        }catch (e: Exception){
+            emit(Resource.error(data = null, message = e.message?: "Gagal memuat data"))
+        }
+    }
+    suspend fun addFav(favorite: Favorite){
+        return localRepository.addFav(favorite)
+    }
+    fun getFav(): Flow<List<Favorite>> {
+        return localRepository.getFav()
+    }
+    suspend fun delFav(favorite: Favorite){
+        return localRepository.delFav(favorite)
+    }
+}

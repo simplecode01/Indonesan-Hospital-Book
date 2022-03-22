@@ -1,0 +1,43 @@
+interface RumahSakitAPI {
+  
+  	@GET("get-provinces")
+    suspend fun getListProvinsi(
+    ):ResponseProvinsi
+
+    @GET("get-cities")
+    suspend fun getListKotaKecamatan(
+        @Query("provinceid")provinceid: String
+    ):ResponseKota
+
+    @GET("get-hospitals")
+    suspend fun getListRumahSakit(
+        @Query("provinceid")provinceid: String,
+        @Query("cityid")cityid: String,
+        @Query("type")type: String
+    ):ResponseRumahSakit
+
+    @GET("get-hospitals")
+    suspend fun getListRumahSakitNonCovid(
+        @Query("provinceid")provinceid: String,
+        @Query("cityid")cityid: String,
+        @Query("type")type: String
+    ):ResponseRumahSakitNonCovid
+
+    @GET("get-bed-detail")
+    suspend fun getDetailRumahSakit(
+        @Query("hospitalid")hospitalid: String,
+        @Query("type")type: String
+    ):ResponseDetailRumahSakit
+
+    @GET("get-hospital-map")
+    suspend fun getMapRumahSakit(
+        @Query("hospitalid")hospitalid: String
+    ):ResponseMapRumahSakit
+
+    @GET("day")
+    suspend fun getLocation(
+        @Query("latitude") latitude: Double,
+        @Query("longitude") longitude: Double
+    ): ResponseCity
+
+}

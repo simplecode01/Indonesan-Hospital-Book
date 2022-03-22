@@ -3,6 +3,9 @@ package com.simplecode01.indonesianhospital.retrofit.data
 import javax.inject.Inject
 
 class RumahSakitRepository @Inject constructor(private val rumahSakitAPI: RumahSakitAPI) {
+
+    suspend fun getListProvince() = rumahSakitAPI.getListProvince()
+  
     suspend fun getListKotaKecamatan(provinceID: String) = rumahSakitAPI.getListKotaKecamatan(provinceID)
 
     suspend fun getListRumahSakitNonCovid(provinceID: String, cityID: String, type: String) = rumahSakitAPI.getListRumahSakitNonCovid(provinceID, cityID, type)
@@ -10,6 +13,6 @@ class RumahSakitRepository @Inject constructor(private val rumahSakitAPI: RumahS
     suspend fun getListRumahSakit(provinceID: String, cityID: String, type: String)= rumahSakitAPI.getListRumahSakit(provinceID, cityID, type)
 
     suspend fun getDetailRumahSakit(hospitalid: String, type: String)=rumahSakitAPI.getDetailRumahSakit(hospitalid, type)
-    
+
     suspend fun getMapsRumahSakit (hospitalid: String)=rumahSakitAPI.getMapRumahSakit(hospitalid)
 }

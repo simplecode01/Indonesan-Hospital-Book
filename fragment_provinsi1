@@ -20,6 +20,10 @@ class ListKotaKecamatanFragment : Fragment(R.layout.fragment_list_provinsi) {
                   val listProvince = dataProv.provinces
                   val adapter = ListProvinceAdapter(listProvince)
                   binding.rvProvince.adapter = adapter
+                  adapter.clicklistener ={ prov ->
+                    viewModelSave.provID = prov.id
+                    findNavController().navigate(R.id.action_nav_list_prov_to_nav_list_kota)
+                  }
                 }
             }
             Status.ERROR ->{

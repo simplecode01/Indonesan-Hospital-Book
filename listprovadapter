@@ -1,0 +1,30 @@
+class ProvinceListAdapter(val listProv: List<GetProvinsi>)
+    : RecyclerView.Adapter<ProvinceListAdapter.ProvViewHolder>(), FastScroller.SectionIndexer {
+    var clickListenerr: ((getProvince: GetProvinsi)->Unit)? = null
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProvViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_provinsi, parent, false)
+        return ProvViewHolder(view)
+    }
+    override fun onBindViewHolder(holder: ProvViewHolder, position: Int) {
+        val province = listProv[position]
+        holder.bindView(province)
+        holder.binding.cvMain.setOnClickListener {
+            clickListenerr?.invoke(province)
+        }
+    }
+    override fun getItemCount(): Int {
+        return listProv.size
+    }
+    override fun getSectionText(position: Int): CharSequence {
+        val name = listProv[position]
+        val popUpText = "Provinsi ${name.provinsi}"
+        return popUpText
+    }
+    class ProvViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding: ItemProvinsiBinding by viewBinding()
+        fun bindView(getProvince: GetProvinsi){
+            binding.province.text = getProvince.provinsi
+            binding.provinceId.text = "Province ID :  ${getProvince.id}"
+        }
+    }
+}

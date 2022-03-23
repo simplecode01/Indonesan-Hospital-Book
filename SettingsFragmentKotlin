@@ -1,0 +1,70 @@
+class SettingsFragment : Fragment(R.layout.fragment_settings) {
+    private val binding: FragmentSettingsBinding by viewBinding()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        when(SaveSharedPrefrences(requireContext()).darkMode){
+            1 -> {
+                binding.switchDarkmode.isChecked = true
+            }
+            0 -> {
+                binding.switchDarkmode.isChecked = false
+            }
+        }
+        when(SaveSharedPrefrences(requireContext()).hospitaltype){
+            "1" -> {
+                binding.tvSaveTypeHospital.text = "Covid"
+            }
+            "2" -> {
+                binding.tvSaveTypeHospital.text = "Non Covid"
+            }
+        }
+        binding.switchDarkmode.setOnClickListener {
+            if (binding.switchDarkmode.isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                SaveSharedPrefrences(requireContext()).darkMode = 1
+                
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                SaveSharedPrefrences(requireContext()).darkMode = 0
+            }
+        }
+        binding.toFeedBack.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_settings_to_nav_feedback)
+        }
+        binding.toAbout.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_settings_to_nav_about)
+        }
+        binding.cvLayoutSaveLocation.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_settings_to_nav_prov_save)
+        }
+        binding.cvLayoutSaveHospitalType.setOnClickListener {
+            val view = layoutInflater.inflate(R.layout.bottom_sheet_dialog_type_hospital, null)
+            val dialog = BottomSheetDialog(requireContext())
+            dialog.setCancelable(true)
+            dialog.setContentView(view)
+            dialog.show()
+            val btnCvd = view.findViewById<LinearLayout>(R.id.cvd)
+            val btnNonCvd = view.findViewById<LinearLayout>(R.id.noncvd)
+            val btnClose = view.findViewById<ImageView>(R.id.close_bottom)
+            btnClose.setOnClickListener {
+                dialog.dismiss()
+            }
+            btnCvd.setOnClickListener {
+                SaveSharedPrefrences(requireContext()).hospitaltype = "1"
+                binding.tvSaveTypeHospital.text = "Covid"
+                dialog.dismiss()
+                findNavController().navigate(R.id.action_nav_settings_to_nav_home)
+            }
+            btnNonCvd.setOnClickListener {
+                SaveSharedPrefrences(requireContext()).hospitaltype = "2"
+                binding.tvSaveTypeHospital.text = "Non Covid"
+                dialog.dismiss()
+                findNavController().navigate(R.id.action_nav_settings_to_nav_home)
+            }
+        }
+        var dataProv = (SaveSharedPrefrences(requireContext()).provinsisave)
+        var dataCity = (SaveSharedPrefrences(requireContext()).kotasave)
+        binding.tvSaveLocation.text = "(Prov : $dataProv, Kota : $dataCity)"
+    }
+
+}

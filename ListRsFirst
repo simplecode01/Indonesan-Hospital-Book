@@ -1,0 +1,92 @@
+package com.simplecode01.indonesianhospital.ui.listrs
+
+import android.os.Bundle
+import android.view.View
+import android.widget.Toast
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import by.kirich1409.viewbindingdelegate.viewBinding
+import com.simplecode01.indonesianhospital.R
+import com.simplecode01.indonesianhospital.adapter.ListHospitalNonCovidAdapter
+import com.simplecode01.indonesianhospital.adapter.ListHospitalsAdapter
+import com.simplecode01.indonesianhospital.adapter.ListKotaKecamatanAdapter
+import com.simplecode01.indonesianhospital.data.Status
+import com.simplecode01.indonesianhospital.databinding.FragmentListRsBinding
+import com.simplecode01.indonesianhospital.retrofit.data.RumahSakitAPI
+import com.simplecode01.indonesianhospital.save.SaveSharedPrefrences
+import com.simplecode01.indonesianhospital.ui.MainHiltViewModel
+import com.simplecode01.indonesianhospital.ui.MainViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+
+@AndroidEntryPoint
+class ListRSFragment : Fragment(R.layout.fragment_list_rs) {
+    private val binding: FragmentListRsBinding by viewBinding()
+    private val viewModelSave: MainViewModel by activityViewModels()
+    private val viewModelMainHilt: MainHiltViewModel by viewModels()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+    }
+    private fun getHospitalsDataCovid(provinceID: String, cityID: String, typeID: String){
+        viewModelMainHilt.getListRumahSakit(provinceID, cityID, typeID).observe(viewLifecycleOwner){resource ->
+            when(resource.status){
+                Status.LOADING ->{
+                    binding.pvLoading.isVisible = true
+                    binding.tvWaitLoading.isVisible = true
+                }
+                Status.SUCCESS ->{
+                    binding.pvLoading.isVisible = false
+                    binding.tvWaitLoading.isVisible = false
+                    resource.data?.let { dataRS ->
+                        val listRS = dataRS.hospitals
+                        val adapter = ListHospitalsAdapter(listRS)
+                        binding.rvHospitals.adapter = adapter
+                        adapter.clickListenerr ={hospital ->
+                            viewModelSave.hospitalID = hospital.id
+                            viewModelSave.hospitalName = hospital.name
+                            viewModelSave.lastUpdate = hospital.info
+                            findNavController().navigate(R.id.action_nav_list_rs_to_nav_detail_rs)
+                        }
+
+                    }
+                }
+                Status.ERROR ->{
+                    Toast.makeText(requireContext(), "ERROR, REASON : ${resource.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+    private fun getHospitalsDataNonCovid(provinceID: String, cityID: String, typeID: String){
+        viewModelMainHilt.getListRumahSakitNonCovid(provinceID, cityID, typeID).observe(viewLifecycleOwner){ resource ->
+            when(resource.status){
+                Status.LOADING ->{
+                    binding.pvLoading.isVisible = true
+                    binding.tvWaitLoading.isVisible = true
+                }
+                Status.SUCCESS ->{
+                    binding.pvLoading.isVisible = false
+                    binding.tvWaitLoading.isVisible = false
+                    resource.data?.let { dataRS ->
+                        val listRS = dataRS.hospitals
+                        val adapter = ListHospitalNonCovidAdapter(listRS)
+                        binding.rvHospitals.adapter = adapter
+                        adapter.clickListenerr ={hospital ->
+                            viewModelSave.hospitalID = hospital.id
+                            viewModelSave.hospitalName = hospital.name
+                            viewModelSave.lastUpdate = hospital.availableBeds[0].info
+                            findNavController().navigate(R.id.action_nav_list_rs_to_nav_detail_rs)
+                        }
+                    }
+                }
+                Status.ERROR ->{
+                    Toast.makeText(requireContext(), "ERROR, REASON : ${resource.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+}

@@ -115,4 +115,61 @@ class DetailRSFragment : Fragment(R.layout.fragment_detail_r_s) {
             }
         }
     }
+    private fun getHospitalMaps(hospitalID: String, rsName: String){
+        viewModelMainHilt.getMapsRumahSakit(hospitalID).observe(viewLifecycleOwner){resource ->
+            when(resource.status){
+                Status.LOADING ->{
+                    binding.cvMaps.isVisible = false
+                }
+                Status.SUCCESS ->{
+                    binding.cvMaps.isVisible = true
+                    resource.data?.let { dataRS ->
+                        val callbackMaps = OnMapReadyCallback { googleMap ->
+                            val lat = dataRS.data.lat.toDouble()
+                            val long = dataRS.data.long.toDouble()
+                            val location = LatLng(lat, long)
+                            googleMap.addMarker(MarkerOptions().position(location).title("$rsName"))
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLng(location))
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLng(location))
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 13F))
+                        }
+                        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+                        mapFragment?.getMapAsync(callbackMaps)
+                    }
+                }
+                Status.ERROR ->{
+                    Toast.makeText(requireContext(), "ERROR PANTEK, REASON : ${resource.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+    private fun openGmap(hospitalID: String){
+        viewModelMainHilt.getMapsRumahSakit(hospitalID).observe(viewLifecycleOwner){resource ->
+            when(resource.status){
+                Status.LOADING ->{
+                    Toast.makeText(requireContext(), "Please wait...", Toast.LENGTH_SHORT).show()
+                }
+                Status.SUCCESS ->{
+                    binding.cvMaps.isVisible = true
+                    resource.data?.let { dataRS ->
+                        val lat = dataRS.data.lat
+                        val long = dataRS.data.long
+                        val link = "https://www.google.com/maps/search/?api=1&query=$lat,$long"
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+                    }
+                }
+                Status.ERROR ->{
+                    Toast.makeText(requireContext(), "ERROR, REASON : ${resource.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+    private fun bookmark(hospitalID: String, hospitalName: String, hospitalAddress: String, hospitalPhone: String){
+        val fav = Favorite(idMain = null, id = hospitalID, name = hospitalName, adress = hospitalAddress, nohp = hospitalPhone)
+        lifecycleScope.launch {
+            viewModelMainHilt.addFav(fav)
+            findNavController().navigate(R.id.action_nav_detail_rs_to_nav_home)
+            Toast.makeText(requireContext(), "Favorite succesfully added", Toast.LENGTH_SHORT).show()
+        }
+    }
 }

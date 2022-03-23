@@ -6,18 +6,29 @@ class ListProvSaveFragment : Fragment(R.layout.fragment_list_prov_save) {
         getListProv()
     }
     private fun getListProv(){
-        context?.let {
-            val database: ProvinceDatabase = ProvinceDatabase.getInstance(it)
-            val provDao = database.provDao()
-            provDao.getListProvinsi().asLiveData().observe(viewLifecycleOwner){listProv ->
-                val adapter: ProvinceListAdapter = ProvinceListAdapter(listProv)
-                adapter.clickListenerr ={province ->
-                    viewModelSave.provinceId = province.id
-                    viewModelSave.provName = province.provinsi!!
-                    findNavController().navigate(R.id.action_nav_prov_save_to_nav_list_kota_keca_save)
+      viewModelMainHilt.getProvince().observe(viewLifecycleOwner){resource ->
+      	when(resource.status){
+        	Status.LOADING ->{
+            	binding.pvLoading.isVisible = true
+                binding.tvWaitLoading.isVisible = true
+            }
+            Status.SUCCESS ->{
+              	binding.pvLoading.isVisible = false
+                binding.tvWaitLoading.isVisible = false
+              	resource.data?.let { dataProv ->
+                  val listProvince = dataProv.provinces
+                  val adapter = ListProvinceAdapter(listProvince)
+                  binding.rvProvince.adapter = adapter
+                  adapter.clicklistener ={ prov ->
+                    viewModelSave.provID = prov.id
+                    findNavController().navigate(R.id.action_nav_list_prov_to_nav_list_kota)
+                  }
                 }
-                binding.rvProvince.adapter = adapter
+            }
+            Status.ERROR ->{
+              Toast.makeText(requireContext(), "ERROR, REASON : ${resource.message}", Toast.LENGTH_SHORT).show()
             }
         }
+      }
     }
 }

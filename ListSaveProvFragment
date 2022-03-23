@@ -1,0 +1,23 @@
+class ListProvSaveFragment : Fragment(R.layout.fragment_list_prov_save) {
+    private val binding: FragmentListProvSaveBinding by viewBinding()
+    private val viewModelSave: MainViewModel by activityViewModels()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        getListProv()
+    }
+    private fun getListProv(){
+        context?.let {
+            val database: ProvinceDatabase = ProvinceDatabase.getInstance(it)
+            val provDao = database.provDao()
+            provDao.getListProvinsi().asLiveData().observe(viewLifecycleOwner){listProv ->
+                val adapter: ProvinceListAdapter = ProvinceListAdapter(listProv)
+                adapter.clickListenerr ={province ->
+                    viewModelSave.provinceId = province.id
+                    viewModelSave.provName = province.provinsi!!
+                    findNavController().navigate(R.id.action_nav_prov_save_to_nav_list_kota_keca_save)
+                }
+                binding.rvProvince.adapter = adapter
+            }
+        }
+    }
+}

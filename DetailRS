@@ -1,0 +1,118 @@
+@AndroidEntryPoint
+class DetailRSFragment : Fragment(R.layout.fragment_detail_r_s) {
+
+    private val binding: FragmentDetailRSBinding by viewBinding()
+    private val viewModelSave: MainViewModel by activityViewModels()
+    private val viewModelMainHilt: MainHiltViewModel by viewModels()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val hospitalId = viewModelSave.hospitalID
+        val hospitalUpdate = viewModelSave.lastUpdate
+        val hospitalName = viewModelSave.hospitalName
+        val toolbarActivity = requireActivity().findViewById<Toolbar?>(R.id.toolbar)
+        var type = ""
+        var typeRS = ""
+        when(SaveSharedPrefrences(requireContext()).hospitaltype){
+            "1" -> {
+                type = "1"
+                typeRS = "Hospital Type : For Covid"
+            }
+            "2" -> {
+                type = "2"
+                typeRS = "Hospital Type : For Non Covid"
+            }
+        }
+        getDetailHospitals(hospitalId, type, hospitalUpdate, typeRS)
+        getHospitalMaps(hospitalId, hospitalName)
+        binding.btnOpenMaps.setOnClickListener {
+            openGmap(hospitalId)
+        }
+        toolbarActivity.title = hospitalName
+
+    }
+    private fun getDetailHospitals(hospitalID: String, typeID: String, hospitalUpdate: String, typeRS: String){
+        viewModelMainHilt.getDetailRumahSakit(hospitalID, typeID).observe(viewLifecycleOwner){resource ->
+            when (resource.status) {
+                Status.LOADING -> {
+                    binding.pvLoading.isVisible = true
+                    binding.tvWaitLoading.isVisible = true
+                    binding.cvHospitalInfo.isVisible = false
+                    binding.cvBedInfo.isVisible = false
+                    binding.btnOpenMaps.isVisible = false
+                    binding.ivMenu.isVisible = false
+                }
+                Status.SUCCESS -> {
+                    binding.pvLoading.isVisible = false
+                    binding.tvWaitLoading.isVisible = false
+                    binding.cvHospitalInfo.isVisible = true
+                    binding.cvBedInfo.isVisible = true
+                    binding.btnOpenMaps.isVisible = true
+                    binding.ivMenu.isVisible = true
+                    resource.data?.let { infoRS ->
+                        val detailRS = infoRS.data
+                        binding.rsType.text = typeRS
+                        binding.rsPhone.text = detailRS.phone
+                        binding.rsAdress.text = detailRS.address
+                        binding.rsLastUpdate.text = hospitalUpdate
+                        binding.btnCall.setOnClickListener {
+                            val intent = Intent(Intent.ACTION_DIAL)
+                            intent.data = Uri.parse("tel:${detailRS.phone}")
+                            startActivity(intent)
+                        }
+                        val detailBed = infoRS.data.bedDetail
+                        val adapter = ListDetailKasurHospitalsAdapter(detailBed)
+                        if (detailBed == null) {
+
+                        } else {
+                            binding.rvBedInfo.adapter = adapter
+                        }
+                        binding.ivMenu.setOnClickListener {
+                            val content =
+                                "Hospital Name : ${detailRS.name} \n\nHospital Adress : ${detailRS.address} \n\nHospital Phone Number : ${detailRS.phone}"
+                            val view = layoutInflater.inflate(R.layout.bottom_sheet_dialog, null)
+                            val dialog = BottomSheetDialog(requireContext())
+                            dialog.setCancelable(true)
+                            dialog.setContentView(view)
+                            dialog.show()
+                            val btnClose = view.findViewById<ImageView>(R.id.close_bottom)
+                            val btnCopy = view.findViewById<LinearLayout>(R.id.copyInfo)
+                            val btnShare = view.findViewById<LinearLayout>(R.id.shareInfo)
+                            val btnFav = view.findViewById<LinearLayout>(R.id.favorite)
+                            btnClose.setOnClickListener {
+                                dialog.dismiss()
+                            }
+                            btnCopy.setOnClickListener {
+                                val clipboard: ClipboardManager =
+                                    requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                val clip = ClipData.newPlainText("copy_info", content)
+                                clipboard.setPrimaryClip(clip)
+                                dialog.dismiss()
+                                dialog.dismiss()
+
+                            }
+                            btnShare.setOnClickListener {
+                                ShareCompat.IntentBuilder(requireContext())
+                                    .setText(content)
+                                    .setType("text/plain")
+                                    .startChooser()
+                                dialog.dismiss()
+                            }
+                            btnFav.setOnClickListener {
+                                val dataRS = detailRS
+                                bookmark(dataRS.id, dataRS.name, dataRS.address, dataRS.phone)
+                                dialog.dismiss()
+                            }
+                        }
+                    }
+                }
+                Status.ERROR -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "ERROR PANTEK, REASON : ${resource.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+}

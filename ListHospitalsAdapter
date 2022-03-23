@@ -1,0 +1,38 @@
+class ListHospitalsAdapter(private val listHospitals: List<Hospital>):
+    RecyclerView.Adapter<ListHospitalsAdapter.ListViewHolder>(), FastScroller.SectionIndexer{
+    
+    var clickListenerr: ((getHospital: Hospital)->Unit)? = null
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_rs, parent, false)
+        return ListViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
+        val hospitals = listHospitals[position]
+        holder.bindView(hospitals)
+        holder.binding.cvHospitals.setOnClickListener {
+            clickListenerr?.invoke(hospitals)
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return listHospitals.size
+    }
+
+    class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding: ItemRsBinding by viewBinding()
+        fun bindView(getHospital: Hospital){
+            binding.rsName.text = getHospital.name
+            binding.rsAddres.text = getHospital.address
+            binding.tvJumlahKasur.text = "${getHospital.bedAvailability}"
+            binding.rsLastUpdate.text = "${getHospital.info}"
+        }
+    }
+
+    override fun getSectionText(position: Int): CharSequence {
+        val hospitals = listHospitals[position]
+        val popUpText = hospitals.name
+        return popUpText
+    }
+}

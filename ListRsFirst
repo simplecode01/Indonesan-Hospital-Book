@@ -1,28 +1,3 @@
-package com.simplecode01.indonesianhospital.ui.listrs
-
-import android.os.Bundle
-import android.view.View
-import android.widget.Toast
-import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
-import by.kirich1409.viewbindingdelegate.viewBinding
-import com.simplecode01.indonesianhospital.R
-import com.simplecode01.indonesianhospital.adapter.ListHospitalNonCovidAdapter
-import com.simplecode01.indonesianhospital.adapter.ListHospitalsAdapter
-import com.simplecode01.indonesianhospital.adapter.ListKotaKecamatanAdapter
-import com.simplecode01.indonesianhospital.data.Status
-import com.simplecode01.indonesianhospital.databinding.FragmentListRsBinding
-import com.simplecode01.indonesianhospital.retrofit.data.RumahSakitAPI
-import com.simplecode01.indonesianhospital.save.SaveSharedPrefrences
-import com.simplecode01.indonesianhospital.ui.MainHiltViewModel
-import com.simplecode01.indonesianhospital.ui.MainViewModel
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-
 @AndroidEntryPoint
 class ListRSFragment : Fragment(R.layout.fragment_list_rs) {
     private val binding: FragmentListRsBinding by viewBinding()

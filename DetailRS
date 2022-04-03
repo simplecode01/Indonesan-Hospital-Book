@@ -11,18 +11,7 @@ class DetailRSFragment : Fragment(R.layout.fragment_detail_r_s) {
         val hospitalName = viewModelSave.hospitalName
         val toolbarActivity = requireActivity().findViewById<Toolbar?>(R.id.toolbar)
         var type = ""
-        var typeRS = ""
-        when(SaveSharedPrefrences(requireContext()).hospitaltype){
-            "1" -> {
-                type = "1"
-                typeRS = "Hospital Type : For Covid"
-            }
-            "2" -> {
-                type = "2"
-                typeRS = "Hospital Type : For Non Covid"
-            }
-        }
-        getDetailHospitals(hospitalId, type, hospitalUpdate, typeRS)
+        getDetailHospitals(hospitalId, type, hospitalUpdate)
         getHospitalMaps(hospitalId, hospitalName)
         binding.btnOpenMaps.setOnClickListener {
             openGmap(hospitalId)
@@ -30,7 +19,7 @@ class DetailRSFragment : Fragment(R.layout.fragment_detail_r_s) {
         toolbarActivity.title = hospitalName
 
     }
-    private fun getDetailHospitals(hospitalID: String, typeID: String, hospitalUpdate: String, typeRS: String){
+    private fun getDetailHospitals(hospitalID: String, typeID: String, hospitalUpdate: String){
         viewModelMainHilt.getDetailRumahSakit(hospitalID, typeID).observe(viewLifecycleOwner){resource ->
             when (resource.status) {
                 Status.LOADING -> {
@@ -50,7 +39,6 @@ class DetailRSFragment : Fragment(R.layout.fragment_detail_r_s) {
                     binding.ivMenu.isVisible = true
                     resource.data?.let { infoRS ->
                         val detailRS = infoRS.data
-                        binding.rsType.text = typeRS
                         binding.rsPhone.text = detailRS.phone
                         binding.rsAdress.text = detailRS.address
                         binding.rsLastUpdate.text = hospitalUpdate

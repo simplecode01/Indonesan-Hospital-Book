@@ -1,0 +1,37 @@
+class ListFavoriteHospitalAdapter(val listFavs: List<Favorite>)
+    : RecyclerView.Adapter<ListFavoriteHospitalAdapter.HospitalFavViewHolder>(){
+
+
+    var deleteOnClickListener: ((Favorite) -> Unit)? = null
+    var layoutbookmark: ((Favorite) -> Unit)? = null
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HospitalFavViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_fav, parent, false)
+        return HospitalFavViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: HospitalFavViewHolder, position: Int) {
+        val favorite = listFavs[position]
+        holder.bindView(favorite)
+        holder.binding.lytHospital.setOnClickListener {
+            layoutbookmark?.invoke(favorite)
+        }
+        holder.binding.ivDelete.setOnClickListener {
+            deleteOnClickListener?.invoke(favorite)
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return listFavs.size
+    }
+
+    class HospitalFavViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val binding: ItemFavBinding by viewBinding()
+        fun bindView(favorite: Favorite){
+            binding.rsName.text = favorite.name
+            binding.rsAddres.text = favorite.adress
+            binding.rsPhoneNumber.text = favorite.nohp
+        }
+    }
+}

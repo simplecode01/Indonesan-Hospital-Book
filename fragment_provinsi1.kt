@@ -1,5 +1,5 @@
 @AndroidEntryPoint
-class ListKotaKecamatanFragment : Fragment(R.layout.fragment_list_provinsi) {
+class ListProvinsiFragment : Fragment(R.layout.fragment_list_provinsi) {
     private val binding: FragmentListProvinsinBinding by viewBinding()
     private val viewModelSave: MainViewModel by activityViewModels()
     private val viewModelMainHilt: MainHiltViewModel by viewModels()

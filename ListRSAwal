@@ -1,0 +1,41 @@
+@AndroidEntryPoint
+class ListRSFragment : Fragment(R.layout.fragment_list_rs) {
+    private val binding: FragmentListRsBinding by viewBinding()
+    private val viewModelSave: MainViewModel by activityViewModels()
+    private val viewModelMainHilt: MainHiltViewModel by viewModels()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val prov = viewModelSave.provinceId
+        val city = viewModelSave.cityId
+        getHospitalsDataCovid(prov, city, "1")
+    }
+    private fun getHospitalsDataCovid(provinceID: String, cityID: String, typeID: String){
+        viewModelMainHilt.getListRumahSakit(provinceID, cityID, typeID).observe(viewLifecycleOwner){resource ->
+            when(resource.status){
+                Status.LOADING ->{
+                    binding.pvLoading.isVisible = true
+                    binding.tvWaitLoading.isVisible = true
+                }
+                Status.SUCCESS ->{
+                    binding.pvLoading.isVisible = false
+                    binding.tvWaitLoading.isVisible = false
+                    resource.data?.let { dataRS ->
+                        val listRS = dataRS.hospitals
+                        val adapter = ListHospitalsAdapter(listRS)
+                        binding.rvHospitals.adapter = adapter
+                        adapter.clickListenerr ={hospital ->
+                            viewModelSave.hospitalID = hospital.id
+                            viewModelSave.hospitalName = hospital.name
+                            viewModelSave.lastUpdate = hospital.info
+                            findNavController().navigate(R.id.action_nav_list_rs_to_nav_detail_rs)
+                        }
+
+                    }
+                }
+                Status.ERROR ->{
+                    Toast.makeText(requireContext(), "ERROR, REASON : ${resource.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+}
